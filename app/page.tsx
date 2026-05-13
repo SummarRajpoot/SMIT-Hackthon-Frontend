@@ -267,7 +267,7 @@ export default function Home() {
               </div>
               <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
                 <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
-                SMIT Hackathon 2026
+                UAF 6th Project
               </div>
               {session?.user && (
                 <div className="ml-0 flex items-center gap-2 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm sm:ml-1">
