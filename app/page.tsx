@@ -25,7 +25,7 @@ type ChatMessage = {
 };
 
 export default function Home() {
-  const API_BASE = "http://localhost:8000";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -78,9 +78,9 @@ export default function Home() {
   };
 
   const scoreBadge = (score: number) => {
-    if (score >= 80) return "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30";
-    if (score >= 50) return "bg-yellow-500/15 text-yellow-200 ring-1 ring-yellow-500/30";
-    return "bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/30";
+    if (score >= 80) return "bg-primary text-white shadow-sm";
+    if (score >= 50) return "bg-primary/20 text-primary-dark";
+    return "bg-gray-100 text-gray-600";
   };
 
   const upload = async () => {
@@ -162,8 +162,8 @@ export default function Home() {
         throw new Error(text || `Chat failed (${res.status})`);
       }
 
-      const data = (await res.json()) as { message?: string; response?: string; content?: string };
-      const aiText = (data.message ?? data.response ?? data.content ?? "").toString().trim();
+      const data = (await res.json()) as { message?: string; response?: string; content?: string; reply?: string };
+      const aiText = (data.reply ?? data.message ?? data.response ?? data.content ?? "").toString().trim();
       if (!aiText) throw new Error("Chat endpoint returned an empty response.");
 
       const aiMsg: ChatMessage = {
@@ -234,61 +234,61 @@ export default function Home() {
   }, [uiState, sessionId, steps.length]);
 
   return (
-    <div className="min-h-dvh bg-[#070A12] text-zinc-100">
+    <div className="min-h-dvh bg-background text-foreground">
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-r from-indigo-500/20 via-cyan-400/15 to-fuchsia-500/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-[420px] w-[640px] rounded-full bg-gradient-to-tr from-emerald-400/10 via-sky-500/10 to-transparent blur-3xl" />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-r from-primary-light/10 via-primary/5 to-primary-dark/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-[420px] w-[640px] rounded-full bg-gradient-to-tr from-primary-light/5 via-primary/5 to-transparent blur-3xl" />
       </div>
 
       <main className="relative mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
         <header className="mb-10">
           <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+              <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/5 shadow-sm">
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
-                  className="h-5 w-5 text-zinc-100"
+                  className="h-5 w-5 text-primary"
                   fill="currentColor"
                 >
                   <path d="M10 4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2h3a3 3 0 0 1 3 3v4.2a3 3 0 0 1-1.76 2.74l-.24.1V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1.96l-.24-.1A3 3 0 0 1 2 13.2V9a3 3 0 0 1 3-3h3V4Zm4 2V4a0 0 0 0 0 0 0h-2a0 0 0 0 0 0 0v2h2Zm-9 4a1 1 0 0 0-1 1v2.2a1 1 0 0 0 .58.91l3.42 1.47V14a1 1 0 1 1 2 0v2h4v-2a1 1 0 1 1 2 0v1.58l3.42-1.47A1 1 0 0 0 22 13.2V11a1 1 0 0 0-1-1H5Zm1 10h12v-2.27l-4 1.72V20a1 1 0 1 1-2 0v-2h-4v2a1 1 0 1 1-2 0v-.55l-4-1.72V20Z" />
                 </svg>
               </div>
               <div className="leading-tight">
-                <div className="text-sm font-semibold tracking-tight text-zinc-50">JobScout AI</div>
-                <div className="text-xs text-zinc-400">Professional job discovery</div>
+                <div className="text-sm font-semibold tracking-tight text-foreground">JobScout AI</div>
+                <div className="text-xs text-text-secondary">Professional job discovery</div>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-3 py-1 text-xs text-primary font-medium">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 Powered by Groq + Gemini
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
                 SMIT Hackathon 2026
               </div>
               {session?.user && (
-                <div className="ml-0 flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:ml-1">
+                <div className="ml-0 flex items-center gap-2 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm sm:ml-1">
                   {session.user.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={session.user.image}
                       alt={session.user.name ?? "User avatar"}
-                      className="h-6 w-6 rounded-full ring-1 ring-white/10"
+                      className="h-6 w-6 rounded-full ring-1 ring-gray-200"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
+                    <div className="h-6 w-6 rounded-full bg-gray-100 ring-1 ring-gray-200" />
                   )}
-                  <span className="max-w-[140px] truncate text-xs font-medium text-zinc-200">
+                  <span className="max-w-[140px] truncate text-xs font-medium text-foreground">
                     {session.user.name ?? "Signed in"}
                   </span>
                   <button
                     type="button"
                     onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                    className="rounded-full border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-100 transition-colors"
                   >
                     Logout
                   </button>
@@ -298,12 +298,13 @@ export default function Home() {
           </nav>
 
           <div className="mt-10">
-            <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
-              <span className="bg-gradient-to-r from-indigo-300 via-cyan-200 to-fuchsia-300 bg-clip-text text-transparent">
-                Find Your Dream Job with AI
+            <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl text-foreground">
+              Find Your Dream Job with{" "}
+              <span className="bg-gradient-to-r from-primary via-primary-light to-primary-dark bg-clip-text text-transparent">
+                AI
               </span>
             </h1>
-            <p className="mt-4 max-w-3xl text-pretty text-sm leading-7 text-zinc-300 sm:text-base">
+            <p className="mt-4 max-w-3xl text-pretty text-sm leading-7 text-text-secondary sm:text-base">
               Upload your CV and let our autonomous AI agent search, match, and rank real job listings
               tailored to your profile.
             </p>
@@ -316,7 +317,7 @@ export default function Home() {
               ].map((label) => (
                 <span
                   key={label}
-                  className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200"
+                  className="inline-flex items-center rounded-full border border-primary/10 bg-primary/5 px-3 py-1 text-xs text-primary font-medium"
                 >
                   {label}
                 </span>
@@ -329,8 +330,8 @@ export default function Home() {
           <section className="grid gap-6">
             <div
               className={[
-                "group relative rounded-2xl border bg-white/5 p-6 shadow-2xl shadow-black/30",
-                dragActive ? "border-cyan-400/50 ring-2 ring-cyan-400/20" : "border-white/10",
+                "group relative rounded-2xl border bg-white p-6 shadow-xl shadow-gray-200/50",
+                dragActive ? "border-primary ring-4 ring-primary/10" : "border-gray-200",
               ].join(" ")}
               onDragEnter={(e) => {
                 e.preventDefault();
@@ -363,10 +364,10 @@ export default function Home() {
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-100">Drag & drop your CV</p>
-                  <p className="mt-1 text-sm text-zinc-300">
-                    Accepted: <span className="font-medium text-zinc-200">PDF</span> or{" "}
-                    <span className="font-medium text-zinc-200">DOCX</span>
+                  <p className="text-sm font-semibold text-foreground">Drag & drop your CV</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Accepted: <span className="font-medium text-foreground">PDF</span> or{" "}
+                    <span className="font-medium text-foreground">DOCX</span>
                   </p>
                 </div>
 
@@ -390,7 +391,7 @@ export default function Home() {
                   />
                   <button
                     type="button"
-                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-100 hover:bg-white/10"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-foreground hover:bg-gray-50 transition-colors shadow-sm"
                     onClick={() => inputRef.current?.click()}
                     disabled={uploading}
                   >
@@ -401,10 +402,9 @@ export default function Home() {
                     onClick={upload}
                     disabled={!file || uploading}
                     className={[
-                      "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium",
-                      "bg-gradient-to-r from-indigo-500 via-cyan-500 to-fuchsia-500 text-white",
-                      "shadow-lg shadow-cyan-500/10 transition-opacity",
-                      !file || uploading ? "opacity-60" : "hover:opacity-95",
+                      "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all",
+                      "bg-primary hover:bg-primary-dark text-white shadow-md shadow-primary/20",
+                      !file || uploading ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02]",
                     ].join(" ")}
                   >
                     {uploading ? (
@@ -419,15 +419,15 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-200">
+              <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 text-sm text-text-secondary">
                 {file ? (
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="truncate">
-                      Selected: <span className="font-medium text-zinc-50">{file.name}</span>
+                      Selected: <span className="font-semibold text-primary">{file.name}</span>
                     </span>
                     <button
                       type="button"
-                      className="text-zinc-300 hover:text-zinc-50"
+                      className="text-primary font-medium hover:text-primary-dark transition-colors"
                       onClick={() => {
                         setFile(null);
                         setError(null);
@@ -443,50 +443,47 @@ export default function Home() {
               </div>
 
               {error && (
-                <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 font-medium">
                   {error}
                 </div>
               )}
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 animate-[jsai_fadeInUp_700ms_ease-out_both]">
-              <h2 className="text-sm font-semibold text-zinc-100">How it works</h2>
-              <div className="mt-4 grid gap-3 text-sm text-zinc-300 sm:grid-cols-3">
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4 transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-400/30 hover:ring-2 hover:ring-cyan-500/20">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-[jsai_fadeInUp_700ms_ease-out_both]">
+              <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">How it works</h2>
+              <div className="mt-4 grid gap-3 text-sm text-text-secondary sm:grid-cols-3">
+                <div className="rounded-xl border border-gray-100 bg-gray-50/30 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 text-lg">📄</div>
                     <div>
-                      <p className="font-medium text-zinc-100">1) Upload</p>
-                      <p className="mt-1 text-sm leading-6 text-zinc-300">
+                      <p className="font-semibold text-foreground">1) Upload</p>
+                      <p className="mt-1 text-sm leading-6 text-text-secondary">
                         Simply drag and drop your CV in PDF or DOCX format. Our system securely
-                        extracts your skills, experience, education, and job history to build your
-                        complete career profile.
+                        extracts your skills, experience, and education.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4 transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo-400/30 hover:ring-2 hover:ring-indigo-500/20">
+                <div className="rounded-xl border border-gray-100 bg-gray-50/30 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 text-lg">🔍</div>
                     <div>
-                      <p className="font-medium text-zinc-100">2) Search</p>
-                      <p className="mt-1 text-sm leading-6 text-zinc-300">
+                      <p className="font-semibold text-foreground">2) Search</p>
+                      <p className="mt-1 text-sm leading-6 text-text-secondary">
                         Our AI agent autonomously generates smart search queries based on your
-                        profile. It then searches real-time job listings using Tavily to find the
-                        most relevant opportunities.
+                        profile and searches real-time job listings.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4 transition-all duration-300 hover:-translate-y-1.5 hover:border-fuchsia-400/30 hover:ring-2 hover:ring-fuchsia-500/20">
+                <div className="rounded-xl border border-gray-100 bg-gray-50/30 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 text-lg">🎯</div>
                     <div>
-                      <p className="font-medium text-zinc-100">3) Rank</p>
-                      <p className="mt-1 text-sm leading-6 text-zinc-300">
-                        Every job is evaluated against your CV using advanced LLM reasoning. Each
-                        result gets a match score from 0-100 with a detailed explanation of why it
-                        fits your profile.
+                      <p className="font-semibold text-foreground">3) Rank</p>
+                      <p className="mt-1 text-sm leading-6 text-text-secondary">
+                        Every job is evaluated against your CV using advanced LLM reasoning and
+                        assigned a match score.
                       </p>
                     </div>
                   </div>
@@ -510,17 +507,17 @@ export default function Home() {
         )}
 
         {uiState === "SEARCHING" && (
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30">
+          <section className="rounded-2xl border border-gray-200 bg-white p-8 shadow-xl shadow-gray-200/50">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-xl font-semibold">AI Agent is searching for jobs…</h2>
-                <p className="mt-2 text-sm text-zinc-300">
-                  Session: <span className="font-mono text-zinc-200">{sessionId}</span>
+                <h2 className="text-xl font-bold text-foreground">AI Agent is searching for jobs…</h2>
+                <p className="mt-2 text-sm text-text-secondary">
+                  Session: <span className="font-mono font-medium text-primary">{sessionId}</span>
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-zinc-300">
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
+              <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
                 <span className="inline-flex items-center gap-1">
                   Working
                   <span className="inline-flex w-10 justify-start">
@@ -538,37 +535,37 @@ export default function Home() {
                   <div
                     key={s}
                     className={[
-                      "flex items-center justify-between rounded-xl border px-4 py-3 text-sm",
+                      "flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-colors",
                       done
-                        ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-100"
+                        ? "border-primary/20 bg-primary/5 text-primary"
                         : active
-                          ? "border-cyan-500/30 bg-cyan-500/10 text-zinc-100"
-                          : "border-white/10 bg-black/20 text-zinc-300",
+                          ? "border-primary-light/30 bg-primary-light/10 text-primary-dark"
+                          : "border-gray-100 bg-gray-50/50 text-text-secondary",
                     ].join(" ")}
                   >
                     <div className="flex items-center gap-3">
                       <span
                         className={[
-                          "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs",
+                          "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
                           done
-                            ? "bg-emerald-400/20 text-emerald-200 ring-1 ring-emerald-500/30"
+                            ? "bg-primary text-white"
                             : active
-                              ? "bg-cyan-400/20 text-cyan-200 ring-1 ring-cyan-500/30"
-                              : "bg-white/5 text-zinc-300 ring-1 ring-white/10",
+                              ? "bg-primary-light text-white animate-pulse"
+                              : "bg-gray-200 text-gray-500",
                         ].join(" ")}
                       >
                         {done ? "✓" : idx + 1}
                       </span>
-                      <span className="font-medium">{s}</span>
+                      <span className="font-semibold">{s}</span>
                     </div>
-                    {active && <span className="text-xs text-zinc-200">in progress</span>}
+                    {active && <span className="text-xs font-bold text-primary animate-pulse">in progress</span>}
                   </div>
                 );
               })}
             </div>
 
             {error && (
-              <div className="mt-6 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <div className="mt-6 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 font-medium">
                 {error}
               </div>
             )}
@@ -577,25 +574,25 @@ export default function Home() {
 
         {uiState === "RESULTS" && (
           <section className="grid gap-6">
-            <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Top matches</h2>
-                <p className="mt-1 text-sm text-zinc-300">
-                  Showing <span className="font-medium text-zinc-100">{jobs.length}</span> results
+                <h2 className="text-xl font-bold text-foreground">Top matches</h2>
+                <p className="mt-1 text-sm text-text-secondary">
+                  Showing <span className="font-bold text-primary">{jobs.length}</span> results
                   ranked by match score.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-100 hover:bg-white/10"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-foreground hover:bg-gray-50 transition-colors shadow-sm"
               >
                 Search Again
               </button>
             </div>
 
             {jobs.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-sm text-zinc-300">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-8 text-sm text-text-secondary text-center italic">
                 No jobs returned. Try uploading a different CV or run again.
               </div>
             ) : (
@@ -603,16 +600,16 @@ export default function Home() {
                 {jobs.map((job, idx) => (
                   <article
                     key={`${job.url}-${idx}`}
-                    className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20"
+                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-gray-200/40 hover:border-primary/40 transition-colors"
                   >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
-                        <h3 className="truncate text-lg font-semibold text-zinc-50">
+                        <h3 className="truncate text-lg font-bold text-foreground">
                           {job.title}
                         </h3>
-                        <p className="mt-1 text-sm text-zinc-300">
-                          <span className="font-medium text-zinc-100">{job.company}</span>
-                          <span className="text-zinc-500"> • </span>
+                        <p className="mt-1 text-sm text-text-secondary">
+                          <span className="font-semibold text-primary">{job.company}</span>
+                          <span className="text-gray-300"> • </span>
                           {job.location}
                         </p>
                       </div>
@@ -620,24 +617,24 @@ export default function Home() {
                       <div className="flex items-center gap-3">
                         <span
                           className={[
-                            "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tabular-nums",
+                            "inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tabular-nums shadow-sm",
                             scoreBadge(job.score),
                           ].join(" ")}
                         >
-                          Match {Math.round(job.score)}
+                          Match {Math.round(job.score)}%
                         </span>
                         <a
                           href={job.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-100"
+                          className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary-dark shadow-md shadow-primary/20 transition-all hover:scale-105"
                         >
                           Apply
                         </a>
                       </div>
                     </div>
 
-                    <div className="mt-4 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-200">
+                    <div className="mt-4 rounded-xl border border-gray-50 bg-gray-50/50 px-4 py-3 text-sm text-text-secondary leading-relaxed">
                       {job.description?.trim()
                         ? job.description
                         : "No description provided for this result."}
@@ -650,16 +647,16 @@ export default function Home() {
         )}
 
         {sessionId && (
-          <section className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20">
+          <section className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-gray-200/50">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-zinc-50">AI Career Chat</h2>
-                <p className="mt-1 text-sm text-zinc-300">
+                <h2 className="text-lg font-bold text-foreground">AI Career Chat</h2>
+                <p className="mt-1 text-sm text-text-secondary">
                   Ask about your CV, best matches, skills to improve, and next steps.
                 </p>
               </div>
-              <p className="text-xs text-zinc-400">
-                Session: <span className="font-mono text-zinc-300">{sessionId}</span>
+              <p className="text-xs text-text-secondary">
+                Session: <span className="font-mono font-medium text-primary">{sessionId}</span>
               </p>
             </div>
 
@@ -668,7 +665,7 @@ export default function Home() {
                 <button
                   key={q}
                   type="button"
-                  className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200 hover:bg-white/10"
+                  className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-all"
                   onClick={() => {
                     setChatInput(q);
                     void sendChat(q);
@@ -680,10 +677,10 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-5 h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+            <div className="mt-5 h-[420px] overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50">
               <div className="h-full overflow-y-auto p-4">
                 {chatMessages.length === 0 ? (
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
+                  <div className="rounded-xl border border-gray-100 bg-white p-4 text-sm text-text-secondary text-center italic">
                     Start chatting once your session is created.
                   </div>
                 ) : (
@@ -698,10 +695,10 @@ export default function Home() {
                       >
                         <div
                           className={[
-                            "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6",
+                            "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
                             m.role === "user"
-                              ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
-                              : "bg-white/5 text-zinc-100 ring-1 ring-white/10",
+                              ? "bg-primary text-white"
+                              : "bg-white text-foreground border border-gray-100",
                           ].join(" ")}
                         >
                           {m.content}
@@ -711,12 +708,12 @@ export default function Home() {
 
                     {chatTyping && (
                       <div className="flex justify-start">
-                        <div className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-zinc-200 ring-1 ring-white/10">
+                        <div className="rounded-2xl bg-white border border-gray-100 px-4 py-3 shadow-sm">
                           <span className="inline-flex items-center gap-2">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-zinc-300/70" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-zinc-300/70 [animation-delay:150ms]" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-zinc-300/70 [animation-delay:300ms]" />
-                            <span className="ml-2 text-zinc-300">AI is typing</span>
+                            <span className="h-2 w-2 animate-bounce rounded-full bg-primary/40" />
+                            <span className="h-2 w-2 animate-bounce rounded-full bg-primary/40 [animation-delay:150ms]" />
+                            <span className="h-2 w-2 animate-bounce rounded-full bg-primary/40 [animation-delay:300ms]" />
+                            <span className="ml-2 text-text-secondary font-medium">AI is typing</span>
                           </span>
                         </div>
                       </div>
@@ -728,7 +725,7 @@ export default function Home() {
             </div>
 
             {chatError && (
-              <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 font-medium">
                 {chatError}
               </div>
             )}
@@ -748,16 +745,16 @@ export default function Home() {
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Ask something…"
                 rows={2}
-                className="min-h-[44px] flex-1 resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                className="min-h-[44px] flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-foreground placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 disabled={chatTyping}
               />
               <button
                 type="submit"
                 disabled={!chatInput.trim() || chatTyping}
                 className={[
-                  "inline-flex h-[44px] items-center justify-center rounded-2xl px-4 text-sm font-semibold text-white",
-                  "bg-gradient-to-r from-indigo-500 via-cyan-500 to-fuchsia-500",
-                  (!chatInput.trim() || chatTyping) ? "opacity-60" : "hover:opacity-95",
+                  "inline-flex h-[44px] items-center justify-center rounded-2xl px-6 text-sm font-bold text-white transition-all shadow-md shadow-primary/20",
+                  "bg-primary hover:bg-primary-dark",
+                  (!chatInput.trim() || chatTyping) ? "opacity-60 cursor-not-allowed" : "hover:scale-105 active:scale-95",
                 ].join(" ")}
               >
                 Send
@@ -767,19 +764,19 @@ export default function Home() {
         )}
 
         <footer className="mt-12">
-          <div className="h-px w-full bg-gradient-to-r from-indigo-500/60 via-cyan-500/60 to-fuchsia-500/60" />
-          <div className="flex flex-col gap-4 border-t border-white/10 bg-black/10 py-6 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-center sm:text-left">
-              © 2026 JobScout AI — All rights reserved
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="flex flex-col gap-4 bg-transparent py-8 text-xs text-text-secondary sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-center sm:text-left font-medium">
+              © 2026 JobScout AI — Empowering careers with AI
             </div>
 
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1 font-medium">
               <span>Developed by</span>
-              <span className="font-semibold text-zinc-200">M. Summar Rajpoot</span>
+              <span className="font-bold text-primary">M. Summar Rajpoot</span>
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
-                className="ml-1 h-3.5 w-3.5 text-rose-300"
+                className="ml-1 h-3.5 w-3.5 text-primary"
                 fill="currentColor"
               >
                 <path d="M12 21s-7.2-4.35-10-9.05C.2 8.65 2.1 5.5 5.7 5.1 7.8 4.9 9.6 6 10.6 7.55c.5.8 1.3.8 1.8 0C13.4 6 15.2 4.9 17.3 5.1c3.6.4 5.5 3.55 3.7 6.85C19.2 16.65 12 21 12 21z" />
@@ -791,7 +788,7 @@ export default function Home() {
                 href="https://github.com/SummarRajpoot"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-zinc-200 hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-text-secondary hover:bg-gray-50 transition-colors"
               >
                 <svg
                   aria-hidden="true"
@@ -805,10 +802,10 @@ export default function Home() {
               </a>
 
               <a
-                href="https://www.linkedin.com/"
+                href="https://linkedin.com/in/SummarRajpoot"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-zinc-200 hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-text-secondary hover:bg-gray-50 transition-colors"
               >
                 <svg
                   aria-hidden="true"
